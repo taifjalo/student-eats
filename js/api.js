@@ -21,71 +21,42 @@ const fetchData = async (url, options = {}) => {
   }
 };
 
-// Get all restaurants
+// Fetch all restaurants
 export const getRestaurants = async () => {
   try {
     const data = await fetchData(`${restApi}/restaurants`);
-    // API might return { restaurants: [...] } or just [...]
-    return Array.isArray(data) ? data : data.restaurants || [];
+    return data;
   } catch (err) {
-    console.error("Failed to get restaurants:", err);
+    console.error("Failed to fetch restaurants:", err);
+    throw err;
+  }
+};
+// getDailyMenu function (using restaurant._id directly)
+export const getDailyMenu = async (restaurantId, lang = "fi") => {
+  try {
+    const data = await fetchData(
+      `${restApi}/restaurants/daily/${restaurantId}/${lang}`
+    );
+    console.log("Daily Menu Data:", data);
+    return data;
+  } catch (err) {
+    console.error("Failed to get daily menu:", err);
     throw err;
   }
 };
 
-// Get daily menu
-// NOTE: Daily menu requires companyId (Number), not _id (String)
-export const getDailyMenu = async (restaurant, lang = "fi") => {
+// getWeeklyMenu function (using restaurant._id directly)
+export const getWeeklyMenu = async (restaurantId, lang = "fi") => {
   try {
-    // If restaurant is an object, try companyId first, fallback to _id
-    let id;
-    if (typeof restaurant === "object") {
-      id = restaurant.companyId || restaurant._id;
-      console.log("Restaurant companyId:", restaurant.companyId, "Using:", id);
-    } else {
-      id = restaurant;
-    }
-
-    if (!id) {
-      console.error("Restaurant object:", restaurant);
-      throw new Error("Restaurant ID is required for daily menu");
-    }
-
-    console.log(`Fetching daily menu with ID: ${id}`);
-    const data = await fetchData(`${restApi}/restaurants/daily/${id}/${lang}`);
-
-    // If we got empty courses and used _id, show helpful error
-    if (
-      data.courses &&
-      data.courses.length === 0 &&
-      restaurant.companyId === undefined
-    ) {
-      console.warn("Empty menu - restaurant might be missing companyId field");
-    }
-
+    const data = await fetchData(
+      `${restApi}/restaurants/weekly/${restaurantId}/${lang}`
+    );
     return data;
   } catch (err) {
-    console.error(`Failed to get daily menu:`, err);
-    throw err;
-  }
-};
-
-// Get weekly menu
-// NOTE: Weekly menu uses _id (String)
-export const getWeeklyMenu = async (restaurant, lang = "fi") => {
-  try {
-    // If restaurant is an object, use _id
-    // If it's a string, use it directly
-    const id = typeof restaurant === "object" ? restaurant._id : restaurant;
-
-    if (!id) {
-      throw new Error("Restaurant _id is required for weekly menu");
-    }
-
-    const data = await fetchData(`${restApi}/restaurants/weekly/${id}/${lang}`);
-    return data;
-  } catch (err) {
-    console.error(`Failed to get weekly menu for ${restaurant}:`, err);
+    console.error(
+      `Failed to get weekly menu for restaurant ID ${restaurantId}:`,
+      err
+    );
     throw err;
   }
 };

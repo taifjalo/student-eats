@@ -28,12 +28,12 @@ student-restaurant/
 │  └─ style.css        ← Styling for all views
 ├─ js/
 │  ├─ variables.js     ← Base API URL, constants
-│  ├─ utils.js         ← Helper functions (e.g., formatting dates)
 │  ├─ components.js    ← DOM components (cards, modal HTML)
-│  ├─ api.js           ← API calls (getRestaurants, getDailyMenu, getWeeklyMenu)
+│  ├─ api.js           ← API calls (getRestaurants, getDailyMenu, getWeeklyMenu),
 │  ├─ auth.js          ← Login/register + local favorites
 │  ├─ events.js        ← Custom events (e.g., onFavsChanged)
 │  ├─ favorites.js     ← Favorite helper functions
+│  ├─ profile.js
 │  ├─ map.js           ← Map initialization + Leaflet logic
 └─ └─ app.js            ← Main logic, event listeners, page switching
 

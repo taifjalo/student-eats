@@ -241,7 +241,7 @@ grid?.addEventListener("click", async (e) => {
 // Handle menu click - FIXED VERSION
 async function handleMenuClick(restaurantId) {
   try {
-    // ✅ CRITICAL FIX: Find the restaurant first
+    // Find the restaurant by its ID
     const restaurant = restaurants.find((r) => r._id === restaurantId);
 
     if (!restaurant) {
@@ -249,68 +249,55 @@ async function handleMenuClick(restaurantId) {
     }
 
     console.log("Loading menu for:", restaurant.name, "Mode:", viewMode);
-    console.log("Restaurant data:", {
-      _id: restaurant._id,
-      companyId: restaurant.companyId,
-    });
 
-    let menu;
     let html;
 
-    try {
-      // ✅ Pass the entire restaurant object (not just ID string)
-      menu =
-        viewMode === "day"
-          ? await getDailyMenu(restaurant) // Pass restaurant object
-          : await getWeeklyMenu(restaurant); // Pass restaurant object
+    // If the user selected Day mode
+    if (viewMode === "day") {
+      console.log("Fetching daily menu...");
+      // Use restaurant._id directly (ensure it's the correct format)
+      const menu = await getDailyMenu(restaurant._id, "fi"); // Fetch daily menu, passing the correct ID
+      console.log("Fetched Daily Menu:", menu);
 
-      console.log("Menu response:", menu);
-
-      if (viewMode === "day") {
-        // Daily menu structure: { courses: [...] }
-        const courses = menu?.courses ?? [];
-        html =
-          courses.length === 0
-            ? "<p class='muted'>No daily menu available for this restaurant</p>"
-            : `<ul>${courses
-                .map((c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`)
-                .join("")}</ul>`;
+      if (menu && menu.courses && menu.courses.length > 0) {
+        html = menu.courses
+          .map((course) => {
+            return `
+              <h5>${course.name}</h5>
+              <p>Price: ${course.price}</p>
+              <p>Diets: ${course.diets}</p>
+            `;
+          })
+          .join("");
       } else {
-        // Weekly menu structure: { days: [{ date, courses: [...] }] }
-        const days = menu?.days ?? [];
-        if (days.length === 0) {
-          html = "<p class='muted'>No weekly menu available</p>";
-        } else {
-          html = days
-            .map((day) => {
-              const courses = day.courses || [];
-              const coursesList =
-                courses.length === 0
-                  ? "<p class='muted'>No courses</p>"
-                  : `<ul>${courses
-                      .map((c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`)
-                      .join("")}</ul>`;
-              return `<h4>${day.date}</h4>${coursesList}`;
-            })
-            .join("");
-        }
+        html = "<p class='muted'>No courses available today.</p>"; // Display this if no courses are found
       }
-    } catch (menuError) {
-      // Handle specific menu loading errors
-      console.error("Menu API error:", menuError);
+    } else {
+      // Handle Weekly menu if viewMode is 'week'
+      const menu = await getWeeklyMenu(restaurant._id, "fi");
+      console.log("Fetched Weekly Menu:", menu);
 
-      if (menuError.message.includes("500")) {
-        html = `
-          <div class="muted" style="padding: 10px; background: #fff3cd; border-radius: 8px; color: #856404;">
-            <p><strong>⚠️ Menu temporarily unavailable</strong></p>
-            <p>The daily menu service is currently experiencing technical issues. Please try the weekly menu instead or check back later.</p>
-          </div>
-        `;
+      const days = menu?.days ?? [];
+      if (days.length === 0) {
+        html =
+          "<p class='muted'>No weekly menu available for this restaurant</p>";
       } else {
-        html = `<p class='muted'>Failed to load menu: ${menuError.message}</p>`;
+        html = days
+          .map((day) => {
+            const courses = day.courses || [];
+            const coursesList =
+              courses.length === 0
+                ? "<p class='muted'>No courses</p>"
+                : `<ul>${courses
+                    .map((c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`)
+                    .join("")}</ul>`;
+            return `<h4>${day.date}</h4>${coursesList}`;
+          })
+          .join("");
       }
     }
 
+    // Update the modal content
     modal.innerHTML = restaurantModalHtml(restaurant, html);
     attachModalClose(modal);
     modal.showModal();
@@ -456,5 +443,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   await loadRestaurants();
 
   console.log("App initialized successfully");
-  console.log("Sample restaurant:", restaurants[0]); // Check if companyId exists
+
+  // DEBUG: Check restaurant structure
+  if (restaurants.length > 0) {
+    console.log("Sample restaurant data:", restaurants[0]);
+    console.log("Has companyId?", restaurants[0].companyId !== undefined);
+    console.log("companyId value:", restaurants[0].companyId);
+    console.log("_id value:", restaurants[0]._id);
+  }
 });
