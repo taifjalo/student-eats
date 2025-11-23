@@ -338,6 +338,10 @@ document.getElementById("view-week").addEventListener("click", () => {
 document
   .getElementById("btn-home")
   .addEventListener("click", () => showView("home"));
+document
+  .getElementById("btn-home-logo")
+  .addEventListener("click", () => showView("home"));
+
 document.getElementById("btn-favs").addEventListener("click", () => {
   renderFavs();
   showView("favs");
