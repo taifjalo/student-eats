@@ -46,8 +46,8 @@ student-restaurant/
 1. Clone the repo:
 
 ```bash
-git clone https://github.com/taifjalo/student-retaurants.git
-cd student-retaurants
+git clone https://github.com/taifjalo/student-eats.git
+cd student-eats
 ```
 
 2. Open `index.html` in your browser.
