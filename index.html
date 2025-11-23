@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Student Restaurants — TX00EY23</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" href="data:," />
+    <!-- Google Fonts: Inter & Poppins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container header-inner">
+        <h1 id="btn-home" class="logo">StudentEats</h1>
+        <nav class="main-nav">
+          <button id="btn-home" class="nav-btn active">Home</button>
+
+          <button id="btn-favs" class="nav-btn hidden">Favorites</button>
+          <button id="btn-map" class="nav-btn">Map</button>
+          <button id="btn-login" class="nav-btn">Login</button>
+          <button id="btn-profile" class="nav-btn hidden">Profile</button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container main-content">
+      <!-- Controls -->
+      <section id="controls-wrapper" class="controls">
+        <input id="search" placeholder="Search restaurants..." />
+        <select id="filter-company">
+          <option value="">All providers</option>
+          <option value="Sodexo">Sodexo</option>
+          <option value="Compass Group">Compass Group</option>
+        </select>
+
+        <div class="toggle">
+          <button id="view-day" class="small active">Day</button>
+          <button id="view-week" class="small">Week</button>
+        </div>
+      </section>
+
+      <!-- Home view -->
+      <section id="home-view">
+        <h2>Restaurants</h2>
+        <div id="restaurant-grid" class="product-grid"></div>
+        <p id="home-empty" class="muted hidden">No restaurants found.</p>
+      </section>
+
+      <!-- Favorites view -->
+      <section id="favs-view" class="hidden">
+        <h2>Your favorites</h2>
+        <div id="favorites-list" class="product-grid"></div>
+        <p id="favs-empty" class="muted hidden">You have no favorites yet.</p>
+      </section>
+
+      <!-- Map view -->
+      <section id="map-view" class="hidden">
+        <h2>Map</h2>
+        <div id="map" style="height: 480px"></div>
+      </section>
+
+      <!-- Profile view -->
+      <section id="profile-view" class="hidden">
+        <h2>My Profile</h2>
+
+        <!-- Avatar preview -->
+        <div id="profile-pic-preview" class="profile-pic-preview">
+          <p>No profile picture</p>
+        </div>
+
+        <form id="profile-form">
+          <!-- Username (disabled, placeholder shows current) -->
+          <div class="form-group">
+            <label for="profile-name">Username</label>
+            <input
+              type="text"
+              id="profile-name"
+              name="username"
+              placeholder="Loading..."
+            />
+          </div>
+
+          <!-- Password (disabled, placeholder only) -->
+          <div class="form-group">
+            <label for="profile-password">Password</label>
+            <input
+              type="password"
+              id="profile-password"
+              name="password"
+              placeholder="********"
+            />
+          </div>
+
+          <!-- Email (disabled, placeholder shows current) -->
+          <div class="form-group">
+            <label for="profile-email">Email</label>
+            <input
+              type="email"
+              id="profile-email"
+              name="email"
+              placeholder="Loading..."
+              disabled
+            />
+          </div>
+
+          <!-- Profile Picture (can upload new) -->
+          <div class="form-group">
+            <label for="profile-picture">Profile Picture</label>
+            <input
+              type="file"
+              id="profile-picture"
+              name="avatar"
+              accept="image/*"
+            />
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" class="btn">
+            <span id="upload-text">Update Profile And Picture</span>
+            <span id="upload-spinner" class="hidden">⏳</span>
+          </button>
+        </form>
+
+        <!-- Logout button -->
+        <button id="btn-logout-profile" class="nav-btn">Logout</button>
+      </section>
+
+      <!-- Notification container -->
+      <div id="notification" class="hidden"></div>
+
+      <!-- Login/Register view -->
+      <section id="login-view" class="hidden">
+        <h2>Login</h2>
+
+        <form id="login-form" class="auth-form">
+          <input id="username" type="text" placeholder="Username" required />
+          <input
+            id="password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+
+          <div class="row">
+            <button type="submit" class="btn">Login</button>
+            <button id="show-register" class="btn ghost">Register</button>
+          </div>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+          <input id="name" type="text" placeholder="Name" required />
+          <input id="reg-email" type="email" placeholder="Email" required />
+          <input
+            id="reg-password"
+            type="password"
+            placeholder="Password"
+            required
+          />
+          <div class="row">
+            <button type="submit" class="btn">Create account</button>
+            <button id="show-login" class="btn ghost">Back to login</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Modal -->
+      <dialog id="restaurant-modal" class="restaurant-modal"></dialog>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>&copy; 2025 StudentEats — TX00EY23</p>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>
