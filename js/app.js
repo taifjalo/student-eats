@@ -248,6 +248,7 @@ async function handleMenuClick(restaurantId) {
       throw new Error("Restaurant not found");
     }
 
+    // for TESTING purposes
     console.log("Loading menu for:", restaurant.name, "Mode:", viewMode);
 
     let html;
@@ -255,8 +256,8 @@ async function handleMenuClick(restaurantId) {
     // If the user selected Day mode
     if (viewMode === "day") {
       console.log("Fetching daily menu...");
-      // Use restaurant._id directly (ensure it's the correct format)
-      const menu = await getDailyMenu(restaurant._id, "fi"); // Fetch daily menu, passing the correct ID
+
+      const menu = await getDailyMenu(restaurant._id, "fi");
       console.log("Fetched Daily Menu:", menu);
 
       if (menu && menu.courses && menu.courses.length > 0) {

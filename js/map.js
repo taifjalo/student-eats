@@ -19,10 +19,19 @@ function haversine(lat1, lon1, lat2, lon2) {
 export const initMap = (restaurants) => {
   const mapContainer = document.getElementById("map");
   if (!mapContainer) return;
+
+  // Check if the map has already been initialized
+  if (mapContainer._leaflet_id) {
+    console.log("Map already initialized");
+    return; // Skip map initialization if already initialized
+  }
+
+  // Clean the map container in case it has residual content
   mapContainer.innerHTML = "";
 
   const map = L.map(mapContainer).setView([60.1699, 24.9384], 12);
 
+  // Add the tile layer to the map
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors",
   }).addTo(map);
@@ -75,14 +84,12 @@ export const initMap = (restaurants) => {
     if (!lat || !lon) return;
 
     const iconHtml = `
-      <div style="
-        width: 36px; height: 36px; 
-        background: ${isFav(restaurant._id) ? "#ffd700" : "#ff4d4d"};
-        border-radius: 50%; border: 2px solid white;
-        display:flex; align-items:center; justify-content:center;
-        font-size:18px; color:white;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      ">🍴</div>
+      <div style="width: 36px; height: 36px; 
+      background: ${isFav(restaurant._id) ? "#ffd700" : "#ff4d4d"};
+      border-radius: 50%; border: 2px solid white;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; color:white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);">🍴</div>
     `;
 
     const marker = L.marker([lat, lon], {
@@ -146,22 +153,12 @@ export const initMap = (restaurants) => {
       const loadMenu = async (type) => {
         try {
           contentEl.innerHTML = "<p class='muted'>Loading menu...</p>";
-
-          console.log(`Loading ${type} menu for:`, restaurant.name);
-          console.log("Restaurant data:", {
-            _id: restaurant._id,
-            companyId: restaurant.companyId,
-          });
-
           const menu =
             type === "day"
-              ? await getDailyMenu(restaurant) // Pass entire restaurant object
-              : await getWeeklyMenu(restaurant); // Pass entire restaurant object
-
-          console.log(`${type} menu response:`, menu);
+              ? await getDailyMenu(restaurant._id)
+              : await getWeeklyMenu(restaurant._id);
 
           if (type === "day") {
-            // Daily menu structure: { courses: [...] }
             const courses = menu?.courses ?? [];
             contentEl.innerHTML =
               courses.length === 0
@@ -170,7 +167,6 @@ export const initMap = (restaurants) => {
                     .map((c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`)
                     .join("")}</ul>`;
           } else {
-            // Weekly menu structure: { days: [{ date, courses: [...] }] }
             const days = menu?.days ?? [];
             if (days.length === 0) {
               contentEl.innerHTML =
