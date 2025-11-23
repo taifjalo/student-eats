@@ -3,7 +3,7 @@ import { isFav, addFav, removeFav } from "./favorites.js";
 import { getDailyMenu, getWeeklyMenu } from "./api.js";
 
 function haversine(lat1, lon1, lat2, lon2) {
-  if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity; // ignore invalid coords
+  if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
   const R = 6371; // km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
@@ -69,15 +69,15 @@ export const initMap = (restaurants) => {
     }
   };
 
-  const createMarker = (r) => {
-    const lat = r.location?.coordinates?.[1];
-    const lon = r.location?.coordinates?.[0];
+  const createMarker = (restaurant) => {
+    const lat = restaurant.location?.coordinates?.[1];
+    const lon = restaurant.location?.coordinates?.[0];
     if (!lat || !lon) return;
 
     const iconHtml = `
       <div style="
         width: 36px; height: 36px; 
-        background: ${isFav(r._id) ? "#ffd700" : "#ff4d4d"};
+        background: ${isFav(restaurant._id) ? "#ffd700" : "#ff4d4d"};
         border-radius: 50%; border: 2px solid white;
         display:flex; align-items:center; justify-content:center;
         font-size:18px; color:white;
@@ -102,66 +102,116 @@ export const initMap = (restaurants) => {
 
     const popupHtml = `
       <div style="min-width:200px;">
-        <h3>${r.name}</h3>
-        <p>${r.address}, ${r.city}</p>
-        <p><b>${r.company}</b></p>
+        <h3>${restaurant.name}</h3>
+        <p>${restaurant.address}, ${restaurant.city}</p>
+        <p><b>${restaurant.company}</b></p>
         ${distanceText}
         <div>
-          <button id="fav-${r._id}" style="font-size:20px;">${
-      isFav(r._id) ? "💛" : "🤍"
+          <button id="fav-${restaurant._id}" style="font-size:20px;">${
+      isFav(restaurant._id) ? "💛" : "🤍"
     }</button>
         </div>
         <div style="margin-top:10px;">
-          <button id="menu-day-${r._id}" class="menu-btn">Day Menu</button>
-          <button id="menu-week-${r._id}" class="menu-btn">Week Menu</button>
+          <button id="menu-day-${
+            restaurant._id
+          }" class="menu-btn">Day Menu</button>
+          <button id="menu-week-${
+            restaurant._id
+          }" class="menu-btn">Week Menu</button>
         </div>
-        <div id="menu-content-${r._id}" style="margin-top:5px;"></div>
+        <div id="menu-content-${restaurant._id}" style="margin-top:5px;"></div>
       </div>
     `;
 
     marker.bindPopup(popupHtml);
 
     marker.on("popupopen", async () => {
-      const favBtn = document.getElementById(`fav-${r._id}`);
+      // Favorite button handler
+      const favBtn = document.getElementById(`fav-${restaurant._id}`);
       if (favBtn) {
         const newFavBtn = favBtn.cloneNode(true);
         favBtn.replaceWith(newFavBtn);
         newFavBtn.addEventListener("click", () => {
-          if (isFav(r._id)) removeFav(r._id);
-          else addFav(r._id);
-          newFavBtn.textContent = isFav(r._id) ? "💛" : "🤍";
+          if (isFav(restaurant._id)) removeFav(restaurant._id);
+          else addFav(restaurant._id);
+          newFavBtn.textContent = isFav(restaurant._id) ? "💛" : "🤍";
         });
       }
 
-      const contentEl = document.getElementById(`menu-content-${r._id}`);
+      const contentEl = document.getElementById(
+        `menu-content-${restaurant._id}`
+      );
 
+      // Load menu function - PASS RESTAURANT OBJECT, not just ID
       const loadMenu = async (type) => {
         try {
+          contentEl.innerHTML = "<p class='muted'>Loading menu...</p>";
+
+          console.log(`Loading ${type} menu for:`, restaurant.name);
+          console.log("Restaurant data:", {
+            _id: restaurant._id,
+            companyId: restaurant.companyId,
+          });
+
           const menu =
             type === "day"
-              ? await getDailyMenu(r._id)
-              : await getWeeklyMenu(r._id);
-          const courses = menu?.courses ?? [];
-          contentEl.innerHTML =
-            courses.length === 0
-              ? "<p class='muted'>No menu</p>"
-              : `<ul>${courses
-                  .map((c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`)
-                  .join("")}</ul>`;
-        } catch {
-          contentEl.innerHTML = "<p class='muted'>Failed to load menu</p>";
+              ? await getDailyMenu(restaurant) // Pass entire restaurant object
+              : await getWeeklyMenu(restaurant); // Pass entire restaurant object
+
+          console.log(`${type} menu response:`, menu);
+
+          if (type === "day") {
+            // Daily menu structure: { courses: [...] }
+            const courses = menu?.courses ?? [];
+            contentEl.innerHTML =
+              courses.length === 0
+                ? "<p class='muted'>No menu available today</p>"
+                : `<ul>${courses
+                    .map((c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`)
+                    .join("")}</ul>`;
+          } else {
+            // Weekly menu structure: { days: [{ date, courses: [...] }] }
+            const days = menu?.days ?? [];
+            if (days.length === 0) {
+              contentEl.innerHTML =
+                "<p class='muted'>No weekly menu available</p>";
+            } else {
+              contentEl.innerHTML = days
+                .map((day) => {
+                  const courses = day.courses || [];
+                  const coursesList =
+                    courses.length === 0
+                      ? "<p class='muted'>No courses</p>"
+                      : `<ul>${courses
+                          .map(
+                            (c) => `<li>${c.name} (${c.price ?? "N/A"})</li>`
+                          )
+                          .join("")}</ul>`;
+                  return `<h4>${day.date}</h4>${coursesList}`;
+                })
+                .join("");
+            }
+          }
+        } catch (err) {
+          console.error(`Failed to load ${type} menu:`, err);
+          contentEl.innerHTML = `<p class='muted'>Failed to load menu: ${err.message}</p>`;
         }
       };
 
-      document
-        .getElementById(`menu-day-${r._id}`)
-        .addEventListener("click", () => loadMenu("day"));
-      document
-        .getElementById(`menu-week-${r._id}`)
-        .addEventListener("click", () => loadMenu("week"));
+      // Menu button handlers
+      const dayBtn = document.getElementById(`menu-day-${restaurant._id}`);
+      const weekBtn = document.getElementById(`menu-week-${restaurant._id}`);
+
+      if (dayBtn) {
+        dayBtn.addEventListener("click", () => loadMenu("day"));
+      }
+
+      if (weekBtn) {
+        weekBtn.addEventListener("click", () => loadMenu("week"));
+      }
     });
 
-    markers.push({ marker, lat, lon });
+    markers.push({ marker, lat, lon, restaurant });
   };
 
   restaurants.forEach(createMarker);
@@ -175,7 +225,7 @@ export const initMap = (restaurants) => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         addUserMarker(pos.coords.latitude, pos.coords.longitude);
-        // re-create markers to calculate distance
+        // Re-create markers to calculate distance
         markers.forEach((m) => m.marker.remove());
         markers.length = 0;
         restaurants.forEach(createMarker);
