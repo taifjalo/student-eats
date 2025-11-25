@@ -2,18 +2,47 @@
 <html lang="en">
 
 <head>
+  <!-- Meta Tags for SEO and Performance -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description"
+    content="StudentEats is a platform where students can find and rate their favorite restaurants and food providers.">
   <title>Student Restaurants — TX00EY23</title>
+
+  <!-- Link to External Stylesheets -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="icon" href="data:,">
+
   <!-- Google Fonts: Inter & Poppins -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
     rel="stylesheet">
+
+  <!-- Leaflet CSS for Maps -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+
+  <!-- Structured Data (JSON-LD) for Restaurant Information -->
+  <script type="application/ld+json">
+    {
+      "@context": "http://schema.org",
+      "@type": "Restaurant",
+      "name": "StudentEats",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "123 University St.",
+        "addressLocality": "City",
+        "addressRegion": "State",
+        "postalCode": "12345",
+        "addressCountry": "Country"
+      },
+      "telephone": "+1-555-555-5555",
+      "url": "https://www.studenteats.com"
+    }
+  </script>
+
+  <!-- Leaflet JavaScript for Maps -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
@@ -22,121 +51,122 @@
     <div class="container header-inner">
       <h1 id="btn-home-logo" class="logo">StudentEats</h1>
       <nav class="main-nav">
-        <button id="btn-home" class="nav-btn active">Home</button>
-        <button id="btn-favs" class="nav-btn hidden">Favorites</button>
-        <button id="btn-map" class="nav-btn">Map</button>
-        <button id="btn-login" class="nav-btn">Login</button>
-        <button id="btn-profile" class="nav-btn hidden">Profile</button>
+        <button id="btn-home" class="nav-btn active" aria-label="Home">Home</button>
+        <button id="btn-favs" class="nav-btn hidden" aria-label="Favorites">Favorites</button>
+        <button id="btn-map" class="nav-btn" aria-label="Map">Map</button>
+        <button id="btn-login" class="nav-btn" aria-label="Login">Login</button>
+        <button id="btn-profile" class="nav-btn hidden" aria-label="Profile">Profile</button>
       </nav>
     </div>
   </header>
 
   <main class="container main-content">
-    <!-- Controls -->
+    <!-- Controls Section -->
     <section id="controls-wrapper" class="controls">
       <h2>Restaurant Controls</h2>
-      <input id="search" placeholder="Search restaurants...">
-      <select id="filter-company">
+      <input id="search" placeholder="Search restaurants..." aria-label="Search restaurants">
+      <label for="filter-company">Filter by provider:</label>
+      <select id="filter-company" aria-label="Filter by company">
         <option value="">All providers</option>
         <option value="Sodexo">Sodexo</option>
         <option value="Compass Group">Compass Group</option>
       </select>
 
       <div class="toggle">
-        <button id="view-day" class="small active">Day</button>
-        <button id="view-week" class="small">Week</button>
+        <button id="view-day" class="small active" aria-label="View restaurants for today">Day</button>
+        <button id="view-week" class="small" aria-label="View restaurants for the week">Week</button>
       </div>
     </section>
 
-    <!-- Home view -->
+    <!-- Home View Section -->
     <section id="home-view">
       <h2>Restaurants</h2>
       <div id="restaurant-grid" class="product-grid"></div>
       <p id="home-empty" class="muted hidden">No restaurants found.</p>
     </section>
 
-    <!-- Favorites view -->
+    <!-- Favorites View Section -->
     <section id="favs-view" class="hidden">
       <h2>Your favorites</h2>
       <div id="favorites-list" class="product-grid"></div>
       <p id="favs-empty" class="muted hidden">You have no favorites yet.</p>
     </section>
 
-    <!-- Map view -->
+    <!-- Map View Section -->
     <section id="map-view" class="hidden">
       <h2>Map</h2>
       <div id="map" style="height: 480px"></div>
     </section>
 
-    <!-- Profile view -->
+    <!-- Profile View Section -->
     <section id="profile-view" class="hidden">
       <h2>My Profile</h2>
 
-      <!-- Avatar preview -->
+      <!-- Avatar Preview -->
       <div id="profile-pic-preview" class="profile-pic-preview">
         <p>No profile picture</p>
       </div>
 
-      <form id="profile-form">
+      <form id="profile-form" aria-labelledby="profile-view">
         <!-- Username (disabled, placeholder shows current) -->
         <div class="form-group">
           <label for="profile-name">Username</label>
-          <input type="text" id="profile-name" name="username" placeholder="Loading...">
+          <input type="text" id="profile-name" name="username" placeholder="Loading..." aria-label="Username">
         </div>
 
         <!-- Password (disabled, placeholder only) -->
         <div class="form-group">
           <label for="profile-password">Password</label>
-          <input type="password" id="profile-password" name="password" placeholder="********">
+          <input type="password" id="profile-password" name="password" placeholder="********" aria-label="Password">
         </div>
 
         <!-- Email (disabled, placeholder shows current) -->
         <div class="form-group">
           <label for="profile-email">Email</label>
-          <input type="email" id="profile-email" name="email" placeholder="Loading..." disabled>
+          <input type="email" id="profile-email" name="email" placeholder="Loading..." disabled aria-label="Email">
         </div>
 
-        <!-- Profile Picture (can upload new) -->
+        <!-- Profile Picture Upload -->
         <div class="form-group">
           <label for="profile-picture">Profile Picture</label>
-          <input type="file" id="profile-picture" name="avatar" accept="image/*">
+          <input type="file" id="profile-picture" name="avatar" accept="image/*" aria-label="Upload profile picture">
         </div>
 
-        <!-- Submit -->
+        <!-- Submit Button -->
         <button type="submit" class="btn">
           <span id="upload-text">Update Profile And Picture</span>
-          <span id="upload-spinner" class="hidden">Loading...</span>
+          <span id="upload-spinner" class="hidden">⏳</span>
         </button>
       </form>
 
-      <!-- Logout button -->
-      <button id="btn-logout-profile" class="nav-btn">Logout</button>
+      <!-- Logout Button -->
+      <button id="btn-logout-profile" class="nav-btn" aria-label="Logout">Logout</button>
     </section>
 
-    <!-- Notification container -->
+    <!-- Notification Container -->
     <div id="notification" class="hidden"></div>
 
-    <!-- Login/Register view -->
+    <!-- Login/Register View Section -->
     <section id="login-view" class="hidden">
       <h2>Login</h2>
 
-      <form id="login-form" class="auth-form">
-        <input id="username" type="text" placeholder="Username" required>
-        <input id="password" type="password" placeholder="Password" required>
+      <form id="login-form" class="auth-form" aria-labelledby="login-view">
+        <input id="username" type="text" placeholder="Username" required aria-label="Username">
+        <input id="password" type="password" placeholder="Password" required aria-label="Password">
 
         <div class="row">
           <button type="submit" class="btn">Login</button>
-          <button id="show-register" class="btn ghost">Register</button>
+          <button id="show-register" class="btn ghost" aria-label="Register">Register</button>
         </div>
       </form>
 
-      <form id="register-form" class="auth-form hidden">
-        <input id="name" type="text" placeholder="Name" required>
-        <input id="reg-email" type="email" placeholder="Email" required>
-        <input id="reg-password" type="password" placeholder="Password" required>
+      <form id="register-form" class="auth-form hidden" aria-labelledby="register-form">
+        <input id="name" type="text" placeholder="Name" required aria-label="Name">
+        <input id="reg-email" type="email" placeholder="Email" required aria-label="Email">
+        <input id="reg-password" type="password" placeholder="Password" required aria-label="Password">
         <div class="row">
           <button type="submit" class="btn">Create account</button>
-          <button id="show-login" class="btn ghost">Back to login</button>
+          <button id="show-login" class="btn ghost" aria-label="Back to login">Back to login</button>
         </div>
       </form>
     </section>
@@ -145,12 +175,14 @@
     <dialog id="restaurant-modal" class="restaurant-modal"></dialog>
   </main>
 
+  <!-- Footer Section -->
   <footer class="site-footer">
     <div class="container">
       <p>&copy; 2025 StudentEats — TX00EY23</p>
     </div>
   </footer>
 
+  <!-- External JS for Leaflet Map and Application Logic -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
