@@ -1,4 +1,6 @@
-# StudentEats
+# StudentEats 
+https://users.metropolia.fi/~taifj/student-eats/
+
 
 > A modern web app to explore student restaurants, view daily/weekly menus, mark favorites, and check locations on the map.
 
